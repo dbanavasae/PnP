@@ -10,14 +10,16 @@
 
 ## Running PnP Server
 
-`$ go run server.go --registry_address=<consul_ip> --server_name=<pnp_server_name> --package_file_path=<path/of/packageInfo.json>
+`$ go run server.go --registry_address=<consul_ip> --server_name=<pnp_server_name> --package_file_path=<path/of/packageInfo.json>`
 
-e.g.: go run server.go --package_file_path "/../config/packageInfo.json" --registry_address "192.168.50.129" --server_name "NewPnPService"`
+e.g.: 
+`$ go run server.go --package_file_path "/../config/packageInfo.json" --registry_address "192.168.50.129" --server_name "NewPnPService"`
 
 `packageInfo.json` recides in config directory.
 
 ## Running PnP client
 
-`$ go run client.go --registry_address=<consul_ip> --pnp_server=<pnp server name registered to consul>
+`$ go run client.go --registry_address=<consul_ip> --pnp_server=<pnp server name registered to consul>`
 
-e.g.: go run client.go --registry_address="192.168.50.129" --pnp_server="NewPnPService"
+e.g.: 
+`$ go run client.go --registry_address="192.168.50.129" --pnp_server="NewPnPService"`
