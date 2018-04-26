@@ -6,8 +6,8 @@ import (
 	"time"
 	"github.com/micro/go-grpc"
 	"github.com/micro/go-micro"
-	handler "github.com/Learning/PnP/handlers"
-	proto "github.com/Learning/PnP/pnp-proto"
+	handler "github.com/PnP/handlers"
+	proto "github.com/PnP/pnp-proto"
 )
 
 /*func init() {

@@ -7,12 +7,12 @@ import (
 	"runtime"
 	"io"
 	"time"
-	"flag"
+	//"flag"
 	"github.com/micro/go-grpc"
 	"golang.org/x/net/context"
-	"github.com/Learning/PnP/common"
-	"github.com/Learning/PnP/executor"
-	proto "github.com/Learning/PnP/pnp-proto"
+	"github.com/PnP/common"
+	"github.com/PnP/executor"
+	proto "github.com/PnP/pnp-proto"
 )
 
 /*var (

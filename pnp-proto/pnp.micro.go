@@ -25,7 +25,7 @@ package pnp
 import proto "github.com/golang/protobuf/proto"
 import fmt "fmt"
 import math "math"
-import _ "github.com/Learning/PnP/common/proto"
+import _ "github.com/PnP/common/proto"
 
 import (
 	client "github.com/micro/go-micro/client"

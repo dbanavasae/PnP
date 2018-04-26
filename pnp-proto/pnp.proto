@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package pnp;
 
-import "github.com/Learning/PnP/common/proto/common.proto";
+import "github.com/PnP/common/proto/common.proto";
 
 service PnP {
     rpc GetPackages (stream ClientPkgMsg) returns (stream ServerPkgResponse) {}

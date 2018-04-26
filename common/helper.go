@@ -3,7 +3,7 @@ package common
 import (
 	"github.com/golang/protobuf/ptypes"
 	"github.com/pborman/uuid"
-	pb "github.com/Learning/PnP/common/proto"
+	pb "github.com/PnP/common/proto"
 )
 
 // NewReqHdrGenerateTraceAndMessageID will generate a common request header with the TraceID, MessageID generated.

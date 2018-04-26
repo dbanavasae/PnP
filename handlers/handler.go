@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"io"
 	"github.com/golang/protobuf/ptypes"
-	"github.com/Learning/PnP/common"
-	pb "github.com/Learning/PnP/common/proto"
-	proto "github.com/Learning/PnP/pnp-proto"
+	"github.com/PnP/common"
+	pb "github.com/PnP/common/proto"
+	proto "github.com/PnP/pnp-proto"
 	"os"
 )
 
