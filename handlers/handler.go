@@ -9,12 +9,13 @@ import (
 	pb "github.com/PnP/common/proto"
 	proto "github.com/PnP/pnp-proto"
 	"os"
+	"github.com/PnP/config"
 )
 
 type PnPService struct {}
 
 var (
-	packageInfoFile = "/PnP/config/packageInfo.json"
+	//packageInfoFile = "/PnP/config/packageInfo.json"
 	serverPkgResponse = &proto.ServerPkgResponse{}
 )
 
@@ -84,7 +85,8 @@ func setServerResponse (pkg common.Package,
 //ToDo: Set dead timer value
 func (s *PnPService) GetPackages (ctx context.Context, stream proto.PnP_GetPackagesStream) (err error) {
 	pwd, _ := os.Getwd()
-	packageInfo, err := common.FromFile(pwd+packageInfoFile)
+	packageInfo, err := common.FromFile(pwd+config.PackageFilePath)
+	fmt.Println(config.PackageFilePath)
 	if err != nil {
 		fmt.Printf("Json marshalling of packageInfo.json failed, %v", err)
 	}

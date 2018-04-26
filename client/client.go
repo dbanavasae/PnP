@@ -3,37 +3,27 @@ package main
 import (
 	"fmt"
 	"log"
-	"os"
 	"runtime"
 	"io"
 	"time"
-	//"flag"
 	"github.com/micro/go-grpc"
 	"golang.org/x/net/context"
 	"github.com/PnP/common"
 	"github.com/PnP/executor"
 	proto "github.com/PnP/pnp-proto"
+	"github.com/micro/go-micro"
+	"github.com/micro/cli"
 )
 
-/*var (
-	consulAddress string
-	pnpServerName string
+var(
+	pnpServer string
 )
 
-func init() {
-	flag.StringVar(&consulAddress, "consulIP", "127.0.0.1",
-		"Consul server's IP address at which gRPC client looks for service offered by gRPC server")
-	flag.StringVar(&pnpServerName, "PnPServerName", "pnpService",
-		"PnP server's registered service name in Consul")
-	flag.Parse()
-
-}*/
-
-func init() {
+/*func init() {
 	os.Setenv("MICRO_REGISTRY_ADDRESS", "192.168.50.129")
 	os.Setenv("SDP_USER_PASSWD", "sdp")
 	os.Setenv("SDP_NETWORK_INTERFACE", "ens33")
-}
+}*/
 
 func populateClientDetails() (proto.ClientInfo) {
 	archType := runtime.GOARCH
@@ -138,9 +128,22 @@ func installPackages(pclient proto.PnPService) {
 }
 
 func main() {
-	service := grpc.NewService()
-	service.Init()
-	pnpClient := proto.PnPServiceClient("PnPServer", service.Client())
+
+	service := grpc.NewService(
+		micro.Flags(
+			cli.StringFlag{
+				Name : "pnp_server",
+				Value: "PnPService",
+				Usage: "PnP server name registered to registry",
+			},
+		),
+	)
+	service.Init(
+		micro.Action(func(c *cli.Context) {
+			pnpServer = c.String("pnp_server")
+		}),
+	)
+	pnpClient := proto.PnPServiceClient(pnpServer, service.Client())
 	//ToDo: Provide flags to perform different operations
 	installPackages(pnpClient)
 }
