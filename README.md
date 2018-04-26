@@ -3,9 +3,9 @@
 ## Prerequisites
 
 1. go lang: version > 1.9
-2. Set GOPATH
-3. Run go get "github.com/micro/go-micro"
-4. Run go get "github.com/micro/go-grpc"
+2. Set env variable GOPATH
+3. Run `$ go get "github.com/micro/go-micro"`
+4. Run `$ go get "github.com/micro/go-grpc"`
 5. Running instance of Consul
 
 Note: To run PnP server and client you should be a root user
