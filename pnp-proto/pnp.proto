@@ -1,0 +1,120 @@
+syntax = "proto3";
+
+package pnp;
+
+import "github.com/Learning/PnP/common/proto/common.proto";
+
+service PnP {
+    rpc GetPackages (stream ClientPkgMsg) returns (stream ServerPkgResponse) {}
+
+    rpc InitPlatformDeploy (stream ClientPlatformMsg) returns (stream ServerPlatformResponse) {}
+
+    //rpc Query (ClientRequestMsg) returns (ServerResponse) {}
+}
+
+message ClientInfo {
+    string osType = 1;
+    string osFlavor = 2;
+    string archType = 3;
+    string clientId = 4;
+}
+
+enum ClientPkgMsgType {
+    PKG_NOT_INSTALLED = 0;
+    PKG_INSTALLED = 1;
+    PKG_VERSION_CHANGED = 2;
+    PKG_VERSION_NO_CHANGE = 3;
+    PKG_UNINSTALL_SUCCESS = 4;
+    PKG_UNINSTALL_FAILED = 5;
+    PKG_INSTALL_SUCCESS = 6;
+    PKG_INSTALL_FAILED = 7;
+    PKG_INIT = 8;
+    PKG_GET_FILE = 9;
+    PKG_DOWNLOAD_INSTRUCTION_FILE_SUCCESS = 10;
+    PKG_DOWNLOAD_INSTRUCTION_FILE_FAILED = 11;
+}
+
+enum ClientPlatformMsgType {
+    PLATFORM_ALREADY_INSTALLED = 0;
+    PLATFORM_NOT_INSTALLED = 1;
+    PLATFORM_ARTIFACT_DOWNLOAD_SUCCESS = 2;
+    PLATFORM_ARTIFACT_DOWNLOAD_FAILED = 3;
+    PLATFORM_DEPLOYMENT_SUCCESS = 4;
+    PLATFORM_DEPLOYMENT_FAILED = 5;
+    PLATFORM_INIT = 6;
+}
+
+message CommonClientInfo {
+    common.RequestHeader requestHeader = 1;
+    ClientInfo clientInfo = 2;
+}
+
+message ClientPkgMsg {
+    CommonClientInfo commonClientInfo = 1;
+    ClientPkgMsgType clientPkgMsgType = 2;
+}
+
+message ClientPlatformMsg {
+    CommonClientInfo commonClientInfo = 1;
+    ClientPlatformMsgType ClientPlatformMsgType = 2;
+}
+
+enum CmdType {
+    RUN = 0;
+    CONFIG = 1; // Todo
+    CLOSE_CONN = 2;
+    INFO = 3;
+}
+
+enum PkgOperType {
+    IS_PKG_INSTALLED = 0;
+    INSTALL_PKG = 1;
+    INSTALL_PKG_FROM_FILE = 2;
+    IS_PKG_OUTDATED = 3;
+    UNINSTALL_PKG = 4;
+    GET_NEXT_PKG = 5;
+}
+
+enum SDPOperType {
+    IS_PLATFORM_INSTALLED = 0;
+    DOWNLOAD_PLATFORM_ARTIFACT = 1;
+    DEPLOY_PLATFORM = 2;
+}
+
+message InstructionPayload {
+    repeated string cmd = 1;
+}
+
+message CommonServerResponse {
+    common.ResponseHeader responseHeader = 1;
+    CmdType cmdType = 2;
+}
+
+message Chunk {
+    bytes fileChunk = 1;
+}
+
+message ServerPkgResponse {
+    CommonServerResponse commonServerResponse = 1;
+    PkgOperType pkgOperType = 2;
+    InstructionPayload instructionPayload = 3;
+    Chunk chunk = 4;
+}
+
+message ServerPlatformResponse {
+    CommonServerResponse commonServerResponse = 1;
+    SDPOperType sdpOperType = 2;
+    InstructionPayload instructionPayload = 3;
+}
+
+message Query {
+    // Todo for SDP update scenario
+}
+
+message ClientRequestMsg {
+    common.RequestHeader RequestHeader = 1;
+    Query QueryData = 2;
+}
+
+
+
