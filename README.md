@@ -8,6 +8,8 @@
 4. Run go get "github.com/micro/go-grpc"
 5. Running instance of Consul
 
+Note: To run PnP server and client you should be a root user
+
 ## Running PnP Server
 
 `$ go run server.go --registry_address=<consul_ip> --server_name=<pnp_server_name> --package_file_path=<path/of/packageInfo.json>`
