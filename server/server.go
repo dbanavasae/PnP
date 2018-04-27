@@ -25,7 +25,7 @@ func main() {
 		micro.Name("PnPServer"),
 		micro.Flags(
 			cli.StringFlag{
-				Name : "PackageFilePath",
+				Name : "package_file_path",
 				Value: "/config/packageInfo.json",
 				Usage: "Path of packageInfo.json file",
 			},
@@ -36,7 +36,7 @@ func main() {
 
 	service.Init(
 		micro.Action(func(c *cli.Context) {
-			config.PackageFilePath = c.String("PackageFilePath")
+			config.PackageFilePath = c.String("package_file_path")
 		}),
 	)
 
