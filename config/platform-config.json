@@ -1,0 +1,13 @@
+{
+  "sdpDeploy" : {
+    "checkSDPInstallation" : [
+
+    ],
+    "downloadSDPArtifact" : [
+
+    ],
+    "installPlatform" : [
+
+    ]
+  }
+}

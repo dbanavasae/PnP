@@ -85,8 +85,7 @@ func setPkgServerResponse (pkg common.Package,
 func (s *PnPService) GetPackages (ctx context.Context, stream proto.PnP_GetPackagesStream) (err error) {
 	packageInfo := &common.PackageInfo{}
 	pwd, _ := os.Getwd()
-	err = common.GetConfigFromJson(pwd + config.PackageFilePath, packageInfo)
-	if err != nil {
+	if err = common.GetConfigFromJson(pwd + config.PackageFilePath, packageInfo); err != nil {
 		log.Fatalf("Unable to get config data from JSON file, Error: %v", err)
 	}
 
@@ -136,6 +135,12 @@ func (s *PnPService) GetPackages (ctx context.Context, stream proto.PnP_GetPacka
 }
 
 func (s *PnPService) DeployPlatform (ctx context.Context, stream proto.PnP_DeployPlatformStream) (err error) {
+	platformDeploy := &common.PlatformDeploy{}
+	pwd, _ := os.Getwd()
+	if err = common.GetConfigFromJson(pwd + config.PlatformDeployFile, platformDeploy); err != nil {
+		log.Fatalf("Unable to get config data from JSON file, Error: %v", err)
+	}
+
 	return nil
 
 }

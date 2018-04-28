@@ -16,9 +16,14 @@ func main() {
 		micro.Name("PnPServer"),
 		micro.Flags(
 			cli.StringFlag{
-				Name : "package_file_path",
+				Name : "package_file",
 				Value: "/config/packageInfo.json",
 				Usage: "Path of packageInfo.json file",
+			},
+			cli.StringFlag{
+				Name : "sdp_deploy_file",
+				Value: "/config/platform-config.json",
+				Usage: "Path of sdp platform deploy config json file",
 			},
 		),
 		micro.RegisterTTL(time.Second*15),
@@ -27,7 +32,8 @@ func main() {
 
 	service.Init(
 		micro.Action(func(c *cli.Context) {
-			config.PackageFilePath = c.String("package_file_path")
+			config.PackageFilePath = c.String("package_file")
+			config.PlatformDeployFile = c.String("sdp_deploy_file")
 		}),
 	)
 

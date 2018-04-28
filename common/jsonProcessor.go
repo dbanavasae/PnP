@@ -20,6 +20,16 @@ type PackageInfo struct {
 	Packages []Package `json:"packages"`
 }
 
+type SDPDeploy struct {
+	CheckSDPInstallation []string `json:"checkSDPInstallation"`
+	DownloadSDPArtifact  []string `json:"downloadSDPArtifact"`
+	InstallPlatform      []string `json:"installPlatform"`
+}
+
+type PlatformDeploy struct {
+	DeployInfo SDPDeploy `json:"sdpDeploy"`
+}
+
 func GetConfigFromJson(file string, configStruct interface{}) (err error) {
 	b, err := ioutil.ReadFile(file)
 	if err != nil {
