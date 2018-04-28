@@ -20,14 +20,15 @@ type PackageInfo struct {
 	Packages []Package `json:"packages"`
 }
 
-func FromFile(file string) (*PackageInfo, error) {
+func GetConfigFromJson(file string, configStruct interface{}) (err error) {
 	b, err := ioutil.ReadFile(file)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	p := PackageInfo{}
-	if err = json.Unmarshal(b, &p); err != nil {
-		return nil, err
+
+	if err = json.Unmarshal(b, configStruct); err != nil {
+		return err
 	}
-	return &p, nil
+
+	return nil
 }

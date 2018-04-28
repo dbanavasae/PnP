@@ -7,7 +7,7 @@ import "github.com/PnP/common/proto/common.proto";
 service PnP {
     rpc GetPackages (stream ClientPkgMsg) returns (stream ServerPkgResponse) {}
 
-    rpc InitPlatformDeploy (stream ClientPlatformMsg) returns (stream ServerPlatformResponse) {}
+    rpc DeployPlatform (stream ClientPlatformMsg) returns (stream ServerPlatformResponse) {}
 
     //rpc Query (ClientRequestMsg) returns (ServerResponse) {}
 }
@@ -20,28 +20,25 @@ message ClientInfo {
 }
 
 enum ClientPkgMsgType {
-    PKG_NOT_INSTALLED = 0;
-    PKG_INSTALLED = 1;
-    PKG_VERSION_CHANGED = 2;
-    PKG_VERSION_NO_CHANGE = 3;
-    PKG_UNINSTALL_SUCCESS = 4;
-    PKG_UNINSTALL_FAILED = 5;
-    PKG_INSTALL_SUCCESS = 6;
-    PKG_INSTALL_FAILED = 7;
-    PKG_INIT = 8;
-    PKG_GET_FILE = 9;
-    PKG_DOWNLOAD_INSTRUCTION_FILE_SUCCESS = 10;
-    PKG_DOWNLOAD_INSTRUCTION_FILE_FAILED = 11;
+    PKG_INIT = 0;
+    PKG_NOT_INSTALLED = 1;
+    PKG_INSTALLED = 2;
+    PKG_VERSION_CHANGED = 3;
+    PKG_VERSION_NO_CHANGE = 4;
+    PKG_UNINSTALL_SUCCESS = 5;
+    PKG_UNINSTALL_FAILED = 6;
+    PKG_INSTALL_SUCCESS = 7;
+    PKG_INSTALL_FAILED = 8;
 }
 
 enum ClientPlatformMsgType {
-    PLATFORM_ALREADY_INSTALLED = 0;
-    PLATFORM_NOT_INSTALLED = 1;
-    PLATFORM_ARTIFACT_DOWNLOAD_SUCCESS = 2;
-    PLATFORM_ARTIFACT_DOWNLOAD_FAILED = 3;
-    PLATFORM_DEPLOYMENT_SUCCESS = 4;
-    PLATFORM_DEPLOYMENT_FAILED = 5;
-    PLATFORM_INIT = 6;
+    PLATFORM_INIT = 0;
+    PLATFORM_ALREADY_INSTALLED = 1;
+    PLATFORM_NOT_INSTALLED = 2;
+    PLATFORM_ARTIFACT_DOWNLOAD_SUCCESS = 3;
+    PLATFORM_ARTIFACT_DOWNLOAD_FAILED = 4;
+    PLATFORM_DEPLOYMENT_SUCCESS = 5;
+    PLATFORM_DEPLOYMENT_FAILED = 6;
 }
 
 message CommonClientInfo {
@@ -56,14 +53,15 @@ message ClientPkgMsg {
 
 message ClientPlatformMsg {
     CommonClientInfo commonClientInfo = 1;
-    ClientPlatformMsgType ClientPlatformMsgType = 2;
+    ClientPlatformMsgType clientPlatformMsgType = 2;
+    string error = 3;
 }
 
 enum CmdType {
     RUN = 0;
     CONFIG = 1; // Todo
-    CLOSE_CONN = 2;
-    INFO = 3;
+    INFO = 2;
+    CLOSE_CONN = 3;
 }
 
 enum PkgOperType {

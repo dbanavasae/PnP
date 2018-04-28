@@ -53,7 +53,7 @@ var _ server.Option
 
 type PnPService interface {
 	GetPackages(ctx context.Context, opts ...client.CallOption) (PnP_GetPackagesService, error)
-	InitPlatformDeploy(ctx context.Context, opts ...client.CallOption) (PnP_InitPlatformDeployService, error)
+	DeployPlatform(ctx context.Context, opts ...client.CallOption) (PnP_DeployPlatformService, error)
 }
 
 type pnPService struct {
@@ -120,16 +120,16 @@ func (x *pnPGetPackagesService) Recv() (*ServerPkgResponse, error) {
 	return m, nil
 }
 
-func (c *pnPService) InitPlatformDeploy(ctx context.Context, opts ...client.CallOption) (PnP_InitPlatformDeployService, error) {
-	req := c.c.NewRequest(c.serviceName, "PnP.InitPlatformDeploy", &ClientPlatformMsg{})
+func (c *pnPService) DeployPlatform(ctx context.Context, opts ...client.CallOption) (PnP_DeployPlatformService, error) {
+	req := c.c.NewRequest(c.serviceName, "PnP.DeployPlatform", &ClientPlatformMsg{})
 	stream, err := c.c.Stream(ctx, req, opts...)
 	if err != nil {
 		return nil, err
 	}
-	return &pnPInitPlatformDeployService{stream}, nil
+	return &pnPDeployPlatformService{stream}, nil
 }
 
-type PnP_InitPlatformDeployService interface {
+type PnP_DeployPlatformService interface {
 	SendMsg(interface{}) error
 	RecvMsg(interface{}) error
 	Close() error
@@ -137,27 +137,27 @@ type PnP_InitPlatformDeployService interface {
 	Recv() (*ServerPlatformResponse, error)
 }
 
-type pnPInitPlatformDeployService struct {
+type pnPDeployPlatformService struct {
 	stream client.Stream
 }
 
-func (x *pnPInitPlatformDeployService) Close() error {
+func (x *pnPDeployPlatformService) Close() error {
 	return x.stream.Close()
 }
 
-func (x *pnPInitPlatformDeployService) SendMsg(m interface{}) error {
+func (x *pnPDeployPlatformService) SendMsg(m interface{}) error {
 	return x.stream.Send(m)
 }
 
-func (x *pnPInitPlatformDeployService) RecvMsg(m interface{}) error {
+func (x *pnPDeployPlatformService) RecvMsg(m interface{}) error {
 	return x.stream.Recv(m)
 }
 
-func (x *pnPInitPlatformDeployService) Send(m *ClientPlatformMsg) error {
+func (x *pnPDeployPlatformService) Send(m *ClientPlatformMsg) error {
 	return x.stream.Send(m)
 }
 
-func (x *pnPInitPlatformDeployService) Recv() (*ServerPlatformResponse, error) {
+func (x *pnPDeployPlatformService) Recv() (*ServerPlatformResponse, error) {
 	m := new(ServerPlatformResponse)
 	err := x.stream.Recv(m)
 	if err != nil {
@@ -170,7 +170,7 @@ func (x *pnPInitPlatformDeployService) Recv() (*ServerPlatformResponse, error) {
 
 type PnPHandler interface {
 	GetPackages(context.Context, PnP_GetPackagesStream) error
-	InitPlatformDeploy(context.Context, PnP_InitPlatformDeployStream) error
+	DeployPlatform(context.Context, PnP_DeployPlatformStream) error
 }
 
 func RegisterPnPHandler(s server.Server, hdlr PnPHandler, opts ...server.HandlerOption) {
@@ -221,11 +221,11 @@ func (x *pnPGetPackagesStream) Recv() (*ClientPkgMsg, error) {
 	return m, nil
 }
 
-func (h *PnP) InitPlatformDeploy(ctx context.Context, stream server.Stream) error {
-	return h.PnPHandler.InitPlatformDeploy(ctx, &pnPInitPlatformDeployStream{stream})
+func (h *PnP) DeployPlatform(ctx context.Context, stream server.Stream) error {
+	return h.PnPHandler.DeployPlatform(ctx, &pnPDeployPlatformStream{stream})
 }
 
-type PnP_InitPlatformDeployStream interface {
+type PnP_DeployPlatformStream interface {
 	SendMsg(interface{}) error
 	RecvMsg(interface{}) error
 	Close() error
@@ -233,27 +233,27 @@ type PnP_InitPlatformDeployStream interface {
 	Recv() (*ClientPlatformMsg, error)
 }
 
-type pnPInitPlatformDeployStream struct {
+type pnPDeployPlatformStream struct {
 	stream server.Stream
 }
 
-func (x *pnPInitPlatformDeployStream) Close() error {
+func (x *pnPDeployPlatformStream) Close() error {
 	return x.stream.Close()
 }
 
-func (x *pnPInitPlatformDeployStream) SendMsg(m interface{}) error {
+func (x *pnPDeployPlatformStream) SendMsg(m interface{}) error {
 	return x.stream.Send(m)
 }
 
-func (x *pnPInitPlatformDeployStream) RecvMsg(m interface{}) error {
+func (x *pnPDeployPlatformStream) RecvMsg(m interface{}) error {
 	return x.stream.Recv(m)
 }
 
-func (x *pnPInitPlatformDeployStream) Send(m *ServerPlatformResponse) error {
+func (x *pnPDeployPlatformStream) Send(m *ServerPlatformResponse) error {
 	return x.stream.Send(m)
 }
 
-func (x *pnPInitPlatformDeployStream) Recv() (*ClientPlatformMsg, error) {
+func (x *pnPDeployPlatformStream) Recv() (*ClientPlatformMsg, error) {
 	m := new(ClientPlatformMsg)
 	if err := x.stream.Recv(m); err != nil {
 		return nil, err

@@ -10,28 +10,28 @@ import (
 	proto "github.com/PnP/pnp-proto"
 	"os"
 	"github.com/PnP/config"
+	"log"
 )
 
 type PnPService struct {}
 
 var (
-	//packageInfoFile = "/PnP/config/packageInfo.json"
 	serverPkgResponse = &proto.ServerPkgResponse{}
 )
 
-func setServerResponse (pkg common.Package,
-	clientPkgMsgType proto.ClientPkgMsgType, len int) (cmdType proto.CmdType,
+func setPkgServerResponse (pkg common.Package,
+	clientPkgMsgType proto.ClientPkgMsgType, numPkgsToInstall int) (cmdType proto.CmdType,
 		pkgOperType proto.PkgOperType, exeCmd []string){
 
 	switch clientPkgMsgType {
-	  case proto.ClientPkgMsgType_PKG_INIT:
+	case proto.ClientPkgMsgType_PKG_INIT:
 		{
 			cmdType = proto.CmdType_RUN
 			pkgOperType = proto.PkgOperType_IS_PKG_INSTALLED
 			exeCmd = pkg.CheckInstalledCmd
 		}
 
-	  case proto.ClientPkgMsgType_PKG_NOT_INSTALLED:
+	case proto.ClientPkgMsgType_PKG_NOT_INSTALLED:
 		{
 			cmdType = proto.CmdType_RUN
 			if pkg.InstallFromFile != "" {
@@ -49,10 +49,10 @@ func setServerResponse (pkg common.Package,
 		}
 
 		//ToDo: Update version if required
-	  case proto.ClientPkgMsgType_PKG_INSTALLED:
+	case proto.ClientPkgMsgType_PKG_INSTALLED:
 		{
 			fmt.Printf("Package %v already installed\n", pkg.Name)
-			if len == 0 {
+			if numPkgsToInstall == 0 {
 				cmdType = proto.CmdType_CLOSE_CONN
 			} else {
 				cmdType = proto.CmdType_INFO
@@ -60,10 +60,10 @@ func setServerResponse (pkg common.Package,
 			}
 		}
 
-	  case proto.ClientPkgMsgType_PKG_INSTALL_SUCCESS:
+	case proto.ClientPkgMsgType_PKG_INSTALL_SUCCESS:
 		{
 			fmt.Printf("Package %v installed\n", pkg.Name)
-			if len == 0 {
+			if numPkgsToInstall == 0 {
 				fmt.Println("\nDone with all pkgs\n")
 				cmdType = proto.CmdType_CLOSE_CONN
 			} else {
@@ -72,33 +72,31 @@ func setServerResponse (pkg common.Package,
 			}
 		}
 
-	  case proto.ClientPkgMsgType_PKG_INSTALL_FAILED:
+	case proto.ClientPkgMsgType_PKG_INSTALL_FAILED:
 		{
 			fmt.Printf("Installation of package %v failed\n", pkg.Name)
 			cmdType = proto.CmdType_CLOSE_CONN
 		}
-		// Add case for get_instruction_file
-		//
 	}
+
 	return
 }
 //ToDo: Set dead timer value
 func (s *PnPService) GetPackages (ctx context.Context, stream proto.PnP_GetPackagesStream) (err error) {
+	packageInfo := &common.PackageInfo{}
 	pwd, _ := os.Getwd()
-	packageInfo, err := common.FromFile(pwd+config.PackageFilePath)
-	fmt.Println(config.PackageFilePath)
+	err = common.GetConfigFromJson(pwd + config.PackageFilePath, packageInfo)
 	if err != nil {
-		fmt.Printf("Json marshalling of packageInfo.json failed, %v", err)
+		log.Fatalf("Unable to get config data from JSON file, Error: %v", err)
 	}
 
-	len := len(packageInfo.Packages)
-	//pkg := &common.Package{}
+	numPkgsToInstall := len(packageInfo.Packages)
 
 	for _, pkg := range packageInfo.Packages {
 		var cmdType proto.CmdType
 		var pkgOperType proto.PkgOperType
 		var exeCmd []string
-		len = len - 1
+		numPkgsToInstall = numPkgsToInstall - 1
 
 		for {
 			clientPkgMsg, err := stream.Recv()
@@ -111,7 +109,7 @@ func (s *PnPService) GetPackages (ctx context.Context, stream proto.PnP_GetPacka
 				break
 			}
 
-			cmdType, pkgOperType, exeCmd = setServerResponse(pkg, clientPkgMsg.GetClientPkgMsgType(), len)
+			cmdType, pkgOperType, exeCmd = setPkgServerResponse(pkg, clientPkgMsg.GetClientPkgMsgType(), numPkgsToInstall)
 
 			serverPkgResponse = &proto.ServerPkgResponse{CommonServerResponse: &proto.CommonServerResponse{ResponseHeader:
 				&pb.ResponseHeader{Identifiers: &pb.Identifiers{TraceID: clientPkgMsg.CommonClientInfo.RequestHeader.Identifiers.TraceID,
@@ -137,7 +135,7 @@ func (s *PnPService) GetPackages (ctx context.Context, stream proto.PnP_GetPacka
 	return nil
 }
 
-func (s *PnPService) InitPlatformDeploy (ctx context.Context, stream proto.PnP_InitPlatformDeployStream) (err error) {
+func (s *PnPService) DeployPlatform (ctx context.Context, stream proto.PnP_DeployPlatformStream) (err error) {
 	return nil
 
 }
