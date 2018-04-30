@@ -13,16 +13,11 @@ import (
 	proto "github.com/PnP/pnp-proto"
 	"github.com/micro/go-micro"
 	"github.com/micro/cli"
-	"github.com/micro/go-micro/transport"
-	"crypto/tls"
-	"crypto/x509"
-	"io/ioutil"
 )
 
 var(
 	pnpServer string
 	pnpOpType string
-	serverCert string
 )
 
 func populateClientDetails() (proto.ClientInfo) {
@@ -220,40 +215,18 @@ func main() {
 				Usage: "Specifies pnp operation type, supported values are" +
 					"installPackages, deployPlatform",
 			},
-			cli.StringFlag{
-				Name : "server_cert_file",
-				Value: "/certs/server.crt",
-				Usage: "Path of server certificate file",
-			},
 		),
 	)
 	service.Init(
 		micro.Action(func(c *cli.Context) {
 			pnpServer = c.String("pnp_server")
 			pnpOpType = c.String("pnp_op_type")
-			serverCert = c.String("server_cert_file")
 			if pnpOpType == "" {
 				log.Fatalf("PnP operation type not specified, supported values are" +
 					"installPackages, deployPlatform")
 			}
 		}),
 	)
-
-	caCert, err := ioutil.ReadFile(serverCert)
-	if err != nil {
-		log.Fatal(err)
-	}
-	caCertPool := x509.NewCertPool()
-	caCertPool.AppendCertsFromPEM(caCert)
-	tlsConfig := &tls.Config{
-		RootCAs:      caCertPool,
-	}
-	tlsConfig.BuildNameToCertificate()
-	service.Init(
-		micro.Transport(transport.NewTransport(transport.Secure(true))),
-		grpc.WithTLS(tlsConfig),
-	)
-
 	pnpClient := proto.PnPServiceClient(pnpServer, service.Client())
 
 	switch pnpOpType {

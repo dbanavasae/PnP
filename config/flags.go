@@ -5,6 +5,4 @@ var (
 	PnpServerName string
 	PackageFilePath string
 	PlatformDeployFile string
-	CertFile string
-	KeyFile string
 )
