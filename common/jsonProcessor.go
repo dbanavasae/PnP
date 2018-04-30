@@ -24,6 +24,7 @@ type SDPDeploy struct {
 	CheckSDPInstallation []string `json:"checkSDPInstallation"`
 	DownloadSDPArtifact  []string `json:"downloadSDPArtifact"`
 	InstallPlatform      []string `json:"installPlatform"`
+	CheckPlatformStatus  []string `json:"checkPlatformStatus"`
 }
 
 type PlatformDeploy struct {

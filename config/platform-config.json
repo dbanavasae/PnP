@@ -8,6 +8,9 @@
     ],
     "installPlatform" : [
 
+    ],
+    "checkPlatformStatus" : [
+
     ]
   }
 }

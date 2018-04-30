@@ -39,6 +39,8 @@ enum ClientPlatformMsgType {
     PLATFORM_ARTIFACT_DOWNLOAD_FAILED = 4;
     PLATFORM_DEPLOYMENT_SUCCESS = 5;
     PLATFORM_DEPLOYMENT_FAILED = 6;
+    PLATFORM_SERVICE_UP = 7;
+    PLATFORM_SERVICE_DOWN = 8;
 }
 
 message CommonClientInfo {
@@ -77,6 +79,7 @@ enum SDPOperType {
     IS_PLATFORM_INSTALLED = 0;
     DOWNLOAD_PLATFORM_ARTIFACT = 1;
     DEPLOY_PLATFORM = 2;
+    CHECK_PLATFORM_STATUS = 3;
 }
 
 message InstructionPayload {
