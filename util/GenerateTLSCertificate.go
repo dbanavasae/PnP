@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/x509"
@@ -13,6 +14,7 @@ import (
 	"time"
 )
 
+var input *bufio.Reader
 
 type Subject struct {
 	Organization  []string
@@ -24,7 +26,7 @@ type Subject struct {
 	Domain        string
 }
 
-func (s *Subject) GenerateCertificate() {
+func (s *Subject) GenerateCertificate(interfaceName string) {
 	var err error
 
 	template := x509.Certificate{
@@ -40,8 +42,8 @@ func (s *Subject) GenerateCertificate() {
 		IsCA: true,
 	}
 
-	template.Subject.CommonName = GetIPv4ForInterfaceName("ens33")
-	ip := net.ParseIP(GetIPv4ForInterfaceName("ens33"))
+	template.Subject.CommonName = GetIPv4ForInterfaceName(interfaceName)
+	ip := net.ParseIP(GetIPv4ForInterfaceName(interfaceName))
 	//Setting this to resolve "cannot validate certificate for <ip> because it doesn't contain any IP SANs"
 	template.IPAddresses = append(template.IPAddresses, ip)
 
@@ -104,6 +106,16 @@ func GetIPv4ForInterfaceName(ifname string) (ip string) {
 }
 
 func main() {
+	fmt.Printf("Enter interface name: ")
+	input = bufio.NewReader(os.Stdin)
+	var ifName []byte
+	for {
+		data, prefix, _ := input.ReadLine()
+		ifName = append(ifName, data...)
+		if !prefix {
+			break
+		}
+	}
 	subject := Subject{
 		Organization:	[]string{"RVBD"},
 		Country:		[]string{"IN"},
@@ -113,5 +125,5 @@ func main() {
 		PostalCode:		[]string{},
 		Domain:			"riverbed.com",
 	}
-	subject.GenerateCertificate()
+	subject.GenerateCertificate(string(ifName))
 }
