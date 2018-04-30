@@ -9,7 +9,7 @@
 5. Running instance of Consul.
 6. Generate the server certificate and key file: 
    
-   6.1. Go to `'../PnP/util/'` folder, and run the `GenerateTLSCertificate.go`. This generates the `server.crt` & `server.key` files in `../PnP/certs` folder.
+   6.1. Go to `'../PnP/util/'` folder, and run the `GenerateTLSCertificate.go`. Enter the interface name as user input. This generates the `server.crt` & `server.key` files in `../PnP/certs` folder.
     
    6.2. Transfer these files to Client machine in the folder: `'../PnP/certs'`.
 
