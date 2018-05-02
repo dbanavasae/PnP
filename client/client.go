@@ -36,10 +36,11 @@ func populateClientDetails() (clientInfo proto.ClientInfo) {
 }
 
 func executeServerInstructions(cmdString []string) (exeErr error) {
+	var errStr string
 	for _, cmd := range cmdString {
-		errStr, exeErr := executor.ExecuteCommand(cmd)
+		errStr, exeErr = executor.ExecuteCommand(cmd)
 		if exeErr != nil {
-			fmt.Printf("\nCommand <%v> failed to execute\nError: %v\n", cmd, errStr)
+			fmt.Printf("\nCommand <%v> failed to execute\nErrorString: %v\nError: %v\n", cmd, errStr, exeErr)
 			break
 		}
 	}
