@@ -10,17 +10,12 @@ import (
 	"golang.org/x/net/context"
 	"github.com/PnP/common"
 	"github.com/PnP/executor"
-	proto "github.com/PnP/pnp-proto"
 	"github.com/micro/go-micro"
 	"github.com/micro/cli"
+	proto "github.com/PnP/pnp-proto"
 )
 
-var(
-	pnpServer string
-	pnpOpType string
-)
-
-func populateClientDetails() (proto.ClientInfo) {
+func populateClientDetails() (clientInfo proto.ClientInfo) {
 	archType := runtime.GOARCH
 	osType := runtime.GOOS
 	getOSFlavorCmd := "lsb_release -a | grep Description | awk -F':' '{print $2}'"
@@ -32,14 +27,13 @@ func populateClientDetails() (proto.ClientInfo) {
 	// ToDo: Client ID generation...
 	clientId := "client1"
 
-	clientInfo := proto.ClientInfo{OsType: osType, ArchType: archType, OsFlavor: osFlavor, ClientId: clientId}
-	return clientInfo
+	clientInfo = proto.ClientInfo{OsType: osType, ArchType: archType, OsFlavor: osFlavor, ClientId: clientId}
+	return
 }
 
 func executeServerInstructions(cmdString []string) (exeErr error) {
 	for _, cmd := range cmdString {
-		var errStr string
-		errStr, exeErr = executor.ExecuteCommand(cmd)
+		errStr, exeErr := executor.ExecuteCommand(cmd)
 		if exeErr != nil {
 			fmt.Printf("\nCommand <%v> failed to execute\nError: %v\n", cmd, errStr)
 			break
@@ -78,8 +72,7 @@ func setPkgMsgType(serverPkgOperType proto.PkgOperType, exeErr error) (clientPkg
 			clientPkgMsgType = proto.ClientPkgMsgType_PKG_INIT
 		}
 	}
-
-	return clientPkgMsgType
+	return
 }
 
 func installPackages(pnpClient proto.PnPService) {
@@ -87,11 +80,11 @@ func installPackages(pnpClient proto.PnPService) {
 	defer cancel()
 	stream, err := pnpClient.GetPackages(cxt)
 	clientInfo := populateClientDetails()
-	var traceId string
-
 	clientPkgMsgType := proto.ClientPkgMsgType_PKG_INIT
-	clientMsg := &proto.ClientPkgMsg{CommonClientInfo: &proto.CommonClientInfo{RequestHeader: common.NewReqHdrGenerateTraceAndMessageID(),
-	ClientInfo: &clientInfo}, ClientPkgMsgType: clientPkgMsgType}
+
+	clientMsg := &proto.ClientPkgMsg{CommonClientInfo: &proto.CommonClientInfo{RequestHeader:
+		common.NewReqHdrGenerateTraceAndMessageID(), ClientInfo: &clientInfo},
+			ClientPkgMsgType: clientPkgMsgType}
 	serverPkgResp := &proto.ServerPkgResponse{}
 
 	for {
@@ -119,55 +112,63 @@ func installPackages(pnpClient proto.PnPService) {
 
 		clientPkgMsgType = setPkgMsgType(serverPkgResp.GetPkgOperType(), exeErr)
 
-		traceId = serverPkgResp.CommonServerResponse.ResponseHeader.Identifiers.TraceID
+		traceId := serverPkgResp.CommonServerResponse.ResponseHeader.Identifiers.TraceID
 
-		clientMsg = &proto.ClientPkgMsg{CommonClientInfo: &proto.CommonClientInfo{RequestHeader: common.NewReqHdrGenerateMessageID(traceId),
-			ClientInfo: &clientInfo}, ClientPkgMsgType: clientPkgMsgType }
+		clientMsg = &proto.ClientPkgMsg{CommonClientInfo: &proto.CommonClientInfo{RequestHeader:
+			common.NewReqHdrGenerateMessageID(traceId), ClientInfo: &clientInfo},
+				ClientPkgMsgType: clientPkgMsgType }
 	}
 }
 
 func setPlatformMsgType(serverPlatformOperType proto.SDPOperType, exeErr error) (clientPlatformMsgType proto.ClientPlatformMsgType) {
 
 	switch serverPlatformOperType {
-	case proto.SDPOperType_IS_PLATFORM_INSTALLED:
+	case proto.SDPOperType_IS_SDP_PLATFORM_INSTALLED:
 		{
 			if exeErr != nil {
-				clientPlatformMsgType = proto.ClientPlatformMsgType_PLATFORM_NOT_INSTALLED
+				clientPlatformMsgType = proto.ClientPlatformMsgType_SDP_PLATFORM_NOT_INSTALLED
 			} else {
-				clientPlatformMsgType = proto.ClientPlatformMsgType_PLATFORM_ALREADY_INSTALLED
+				clientPlatformMsgType = proto.ClientPlatformMsgType_SDP_PLATFORM_ALREADY_INSTALLED
 			}
 		}
-	case proto.SDPOperType_DOWNLOAD_PLATFORM_ARTIFACT:
+	case proto.SDPOperType_DOWNLOAD_SDP_PLATFORM_ARTIFACT:
 		{
 			if exeErr != nil {
-				clientPlatformMsgType = proto.ClientPlatformMsgType_PLATFORM_ARTIFACT_DOWNLOAD_FAILED
+				clientPlatformMsgType = proto.ClientPlatformMsgType_SDP_PLATFORM_ARTIFACT_DOWNLOAD_FAILED
 			} else {
-				clientPlatformMsgType = proto.ClientPlatformMsgType_PLATFORM_ARTIFACT_DOWNLOAD_SUCCESS
+				clientPlatformMsgType = proto.ClientPlatformMsgType_SDP_PLATFORM_ARTIFACT_DOWNLOAD_SUCCESS
 			}
 		}
-	case proto.SDPOperType_DEPLOY_PLATFORM:
+	case proto.SDPOperType_DEPLOY_SDP_PLATFORM:
 		{
 			if exeErr != nil {
-				clientPlatformMsgType = proto.ClientPlatformMsgType_PLATFORM_DEPLOYMENT_FAILED
+				clientPlatformMsgType = proto.ClientPlatformMsgType_SDP_PLATFORM_DEPLOYMENT_FAILED
 			} else {
-				clientPlatformMsgType = proto.ClientPlatformMsgType_PLATFORM_DEPLOYMENT_SUCCESS
+				clientPlatformMsgType = proto.ClientPlatformMsgType_SDP_PLATFORM_DEPLOYMENT_SUCCESS
 			}
 		}
 	}
-	return clientPlatformMsgType
+	return
 }
 
-func deployPlatform(pnpClient proto.PnPService) {
+func deployPlatform(pnpClient proto.PnPService, platformType string) {
 	cxt, cancel := context.WithTimeout(context.Background(), time.Minute*20)
 	defer cancel()
 	stream, err := pnpClient.DeployPlatform(cxt)
-	clientInfo := populateClientDetails()
-	var traceId string
+	var clientPlatformMsgType proto.ClientPlatformMsgType
 
-	clientPlatformMsgType := proto.ClientPlatformMsgType_PLATFORM_INIT
+	clientInfo := populateClientDetails()
+
+	if platformType == "master" {
+		clientPlatformMsgType = proto.ClientPlatformMsgType_SDP_PLATFORM_MASTER_INIT
+	} else {
+		clientPlatformMsgType = proto.ClientPlatformMsgType_SDP_PLATFORM_SATELLITE_INIT
+	}
+
 	clientMsg := &proto.ClientPlatformMsg{CommonClientInfo: &proto.CommonClientInfo{RequestHeader:
 		common.NewReqHdrGenerateTraceAndMessageID(), ClientInfo: &clientInfo}, ClientPlatformMsgType:
 			clientPlatformMsgType}
+
 	serverPlatformResponse := &proto.ServerPlatformResponse{}
 
 	for {
@@ -194,14 +195,17 @@ func deployPlatform(pnpClient proto.PnPService) {
 
 		clientPlatformMsgType = setPlatformMsgType(serverPlatformResponse.GetSdpOperType(), exeErr)
 
-		traceId = serverPlatformResponse.CommonServerResponse.ResponseHeader.Identifiers.TraceID
+		traceId := serverPlatformResponse.CommonServerResponse.ResponseHeader.Identifiers.TraceID
 
-		clientMsg = &proto.ClientPlatformMsg{CommonClientInfo: &proto.CommonClientInfo{RequestHeader: common.NewReqHdrGenerateMessageID(traceId),
-			ClientInfo: &clientInfo}, ClientPlatformMsgType: clientPlatformMsgType }
+		clientMsg = &proto.ClientPlatformMsg{CommonClientInfo: &proto.CommonClientInfo{RequestHeader:
+			common.NewReqHdrGenerateMessageID(traceId), ClientInfo: &clientInfo},
+				ClientPlatformMsgType: clientPlatformMsgType }
 	}
 }
 
 func main() {
+	var pnpServer string
+	var pnpOpType string
 
 	service := grpc.NewService(
 		micro.Flags(
@@ -223,7 +227,7 @@ func main() {
 			pnpOpType = c.String("pnp_op_type")
 			if pnpOpType == "" {
 				log.Fatalf("PnP operation type not specified, supported values are" +
-					"installPackages, deployPlatform")
+					"installPackages, deploySDPMaster, deploySDPSatellite")
 			}
 		}),
 	)
@@ -235,10 +239,15 @@ func main() {
 			fmt.Println("Initializing package installation...")
 			installPackages(pnpClient)
 		}
-	case "deployPlatform":
+	case "deploySDPMaster":
 		{
-			fmt.Println("Initializing deployment of SDP platform...")
-			deployPlatform(pnpClient)
+			fmt.Println("Initializing deployment of SDP Master...")
+			deployPlatform(pnpClient, "master")
+		}
+	case "deploySDPSatellite":
+		{
+			fmt.Println("Initializing deployment of SDP Satellite...")
+			deployPlatform(pnpClient, "satellite")
 		}
 	}
 }

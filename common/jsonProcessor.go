@@ -21,10 +21,13 @@ type PackageInfo struct {
 }
 
 type SDPDeploy struct {
-	CheckSDPInstallation []string `json:"checkSDPInstallation"`
-	DownloadSDPArtifact  []string `json:"downloadSDPArtifact"`
-	InstallPlatform      []string `json:"installPlatform"`
-	CheckPlatformStatus  []string `json:"checkPlatformStatus"`
+	CheckSDPMasterInstallation    []string `json:"checkSDPMasterInstallation"`
+	CheckSDPSatelliteInstallation []string `json:"checkSDPSatelliteInstallation"`
+	DownloadSDPArtifact           []string `json:"downloadSDPArtifact"`
+	InstallSDPMasterPlatform      []string `json:"installSDPMasterPlatform"`
+	InstallSDPSatellitePlatform   []string `json:"installSDPSatellitePlatform"`
+	CheckSDPMasterStatus          []string `json:"checkSDPMasterStatus"`
+	CheckSDPSatelliteStatus       []string `json:"checkSDPSatelliteStatus"`
 }
 
 type PlatformDeploy struct {

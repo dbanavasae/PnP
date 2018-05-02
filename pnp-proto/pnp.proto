@@ -32,15 +32,16 @@ enum ClientPkgMsgType {
 }
 
 enum ClientPlatformMsgType {
-    PLATFORM_INIT = 0;
-    PLATFORM_ALREADY_INSTALLED = 1;
-    PLATFORM_NOT_INSTALLED = 2;
-    PLATFORM_ARTIFACT_DOWNLOAD_SUCCESS = 3;
-    PLATFORM_ARTIFACT_DOWNLOAD_FAILED = 4;
-    PLATFORM_DEPLOYMENT_SUCCESS = 5;
-    PLATFORM_DEPLOYMENT_FAILED = 6;
-    PLATFORM_SERVICE_UP = 7;
-    PLATFORM_SERVICE_DOWN = 8;
+    SDP_PLATFORM_MASTER_INIT = 0;
+    SDP_PLATFORM_SATELLITE_INIT = 1;
+    SDP_PLATFORM_ALREADY_INSTALLED = 2;
+    SDP_PLATFORM_NOT_INSTALLED = 3;
+    SDP_PLATFORM_ARTIFACT_DOWNLOAD_SUCCESS = 4;
+    SDP_PLATFORM_ARTIFACT_DOWNLOAD_FAILED = 5;
+    SDP_PLATFORM_DEPLOYMENT_SUCCESS = 6;
+    SDP_PLATFORM_DEPLOYMENT_FAILED = 7;
+    SDP_PLATFORM_SERVICE_UP = 8;
+    SDP_PLATFORM_SERVICE_DOWN = 9;
 }
 
 message CommonClientInfo {
@@ -76,10 +77,15 @@ enum PkgOperType {
 }
 
 enum SDPOperType {
-    IS_PLATFORM_INSTALLED = 0;
-    DOWNLOAD_PLATFORM_ARTIFACT = 1;
-    DEPLOY_PLATFORM = 2;
-    CHECK_PLATFORM_STATUS = 3;
+    IS_SDP_PLATFORM_INSTALLED = 0;
+    DOWNLOAD_SDP_PLATFORM_ARTIFACT = 1;
+    DEPLOY_SDP_PLATFORM = 2;
+    CHECK_SDP_PLATFORM_STATUS = 3;
+}
+
+enum SDPDeploymentType {
+    MASTER = 0;
+    SATELLITE = 1;
 }
 
 message InstructionPayload {
@@ -105,7 +111,8 @@ message ServerPkgResponse {
 message ServerPlatformResponse {
     CommonServerResponse commonServerResponse = 1;
     SDPOperType sdpOperType = 2;
-    InstructionPayload instructionPayload = 3;
+    SDPDeploymentType sdpDeploymentType = 3;
+    InstructionPayload instructionPayload = 4;
 }
 
 message Query {
