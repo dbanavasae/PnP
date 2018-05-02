@@ -140,37 +140,45 @@ func setSDPOperType(msgType proto.ClientPlatformMsgType) (cmdType proto.CmdType,
 		}
 	case proto.ClientPlatformMsgType_SDP_PLATFORM_ALREADY_INSTALLED:
 		{
-			fmt.Println("Platform already installed.. closing stream")
+			fmt.Println("SDP Platform is already installed.. Closing connection")
 			cmdType = proto.CmdType_CLOSE_CONN
 		}
 	case proto.ClientPlatformMsgType_SDP_PLATFORM_NOT_INSTALLED:
 		{
+			fmt.Println("Sending SDP Platform artifact download instructions..")
 			platformOperType = proto.SDPOperType_DOWNLOAD_SDP_PLATFORM_ARTIFACT
 			cmdType = proto.CmdType_RUN
 		}
 	case proto.ClientPlatformMsgType_SDP_PLATFORM_ARTIFACT_DOWNLOAD_SUCCESS:
 		{
+			fmt.Println("SDP Platform artifact downloaded successfully.. Sending Deploy instructions")
 			platformOperType = proto.SDPOperType_DEPLOY_SDP_PLATFORM
 			cmdType = proto.CmdType_RUN
 		}
 	case proto.ClientPlatformMsgType_SDP_PLATFORM_ARTIFACT_DOWNLOAD_FAILED:
 		{
-			fmt.Println("Artifact download failed.. closing stream")
+			fmt.Println("SDP Platform Artifact download failed.. closing stream")
 			cmdType = proto.CmdType_CLOSE_CONN
 		}
 	case proto.ClientPlatformMsgType_SDP_PLATFORM_DEPLOYMENT_SUCCESS:
 		{
+			fmt.Println("SDP Platform deployment successful.. Checking deployment status")
 			platformOperType = proto.SDPOperType_CHECK_SDP_PLATFORM_STATUS
 			cmdType = proto.CmdType_RUN
 		}
+	case proto.ClientPlatformMsgType_SDP_PLATFORM_DEPLOYMENT_FAILED:
+		{
+			fmt.Println("SDP Platform deployment failed.. Closing stream")
+			cmdType = proto.CmdType_CLOSE_CONN
+		}
 	case proto.ClientPlatformMsgType_SDP_PLATFORM_SERVICE_UP:
 		{
-			fmt.Println("Platform services are up and running.. closing stream")
+			fmt.Println("SDP Platform services are UP and RUNNING.. Closing connection")
 			cmdType = proto.CmdType_CLOSE_CONN
 		}
 	case proto.ClientPlatformMsgType_SDP_PLATFORM_SERVICE_DOWN:
 		{
-			fmt.Println("Platform services are down.. closing stream")
+			fmt.Println("SDP Platform services are DOWN.. Closing connection")
 			cmdType = proto.CmdType_CLOSE_CONN
 		}
 	}
@@ -225,17 +233,23 @@ func (s *PnPService) DeployPlatform (ctx context.Context, stream proto.PnP_Deplo
 	for {
 		clientPlatformMsg, err := stream.Recv()
 		if err == io.EOF {
+			fmt.Printf("\nDone with platform install.. closing stream\n")
+			stream.Close()
 			return nil
 		}
 
 		if err != nil {
-			fmt.Printf("Error reading data from client, Error : %v", err)
+			fmt.Printf("\nError reading data from client, Error : %v", err)
 			break
 		}
 
+		fmt.Printf("\nReceived SDP Deploy request from client, Request type: %v\n", clientPlatformMsg.GetClientPlatformMsgType())
+
 		if clientPlatformMsg.GetClientPlatformMsgType() == proto.ClientPlatformMsgType_SDP_PLATFORM_MASTER_INIT {
+			fmt.Printf("Client %v requested for SDP Master installation, Starting deployment...", clientPlatformMsg.GetCommonClientInfo().ClientInfo.ClientId)
 			sdpDeploymentType = proto.SDPDeploymentType_MASTER
-		} else {
+		} else if clientPlatformMsg.GetClientPlatformMsgType() == proto.ClientPlatformMsgType_SDP_PLATFORM_SATELLITE_INIT {
+			fmt.Printf("Client %v requested for SDP Satellite installation, Starting deployment...", clientPlatformMsg.GetCommonClientInfo().ClientInfo.ClientId)
 			sdpDeploymentType = proto.SDPDeploymentType_SATELLITE
 		}
 
@@ -257,11 +271,13 @@ func (s *PnPService) DeployPlatform (ctx context.Context, stream proto.PnP_Deplo
 							platformOperType, InstructionPayload:
 								&proto.InstructionPayload{Cmd: exeCmd}}
 
+		fmt.Printf("Sending SDP Deploy instructions to PnP client, Instruction type: %v", platformOperType)
 		if err = stream.Send(serverPlatformResponse); err != nil {
 			fmt.Printf("Error while sending response to client, Error: %v", err)
 			break
 		}
 	}
+	stream.Close()
 	return nil
 }
 

@@ -11,19 +11,19 @@
     ],
     "installSDPMasterPlatform" : [
       "tar -zxvf /tmp/rvbd-sdp-artifact.tar.gz --strip-components=1 -C /tmp/",
-      "cd /tmp/sdp-platform-installer && ./install.sh -m"
+      "cd /tmp/sdp-platform-installer && export SDP_USER_PASSWD='sdp' && export SDP_NETWORK_INTERFACE='ens33' && ./install.sh -m"
     ],
     "installSDPSatellitePlatform" : [
       "tar -zxvf /tmp/rvbd-sdp-artifact.tar.gz --strip-components=1 -C /tmp/",
-      "cd /tmp/sdp-platform-installer && ./install.sh -s"
+      "cd /tmp/sdp-platform-installer && export SDP_USER_PASSWD='sdp' && export SDP_NETWORK_INTERFACE='ens33' && ./install.sh -s"
     ],
     "checkSDPMasterStatus" : [
       "su - sdp -c 'sdp-cli platform status | grep MASTER'",
-      "su - sdp -c 'sdp-cli platform status | grep \/Platform is Healthy. All core services are running successfully\/'"
+      "su - sdp -c 'sdp-cli platform status | grep Platform is Healthy. All core services are running successfully'"
     ],
     "checkSDPSatelliteStatus" : [
       "su - sdp -c 'sdp-cli platform status | grep SATELLITE'",
-      "su - sdp -c 'sdp-cli platform status | grep \/Platform is Healthy. All core services are running successfully\/'"
+      "su - sdp -c 'sdp-cli platform status | grep 'Platform is Healthy. All core services are running successfully''"
     ]
   }
 }

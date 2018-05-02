@@ -157,7 +157,7 @@ func setPlatformMsgType(serverPlatformOperType proto.SDPOperType, exeErr error) 
 }
 
 func deployPlatform(pnpClient proto.PnPService, platformType string) {
-	cxt, cancel := context.WithTimeout(context.Background(), time.Minute*20)
+	cxt, cancel := context.WithTimeout(context.Background(), time.Minute*120)
 	defer cancel()
 	stream, err := pnpClient.DeployPlatform(cxt)
 	var clientPlatformMsgType proto.ClientPlatformMsgType
@@ -166,7 +166,7 @@ func deployPlatform(pnpClient proto.PnPService, platformType string) {
 
 	if platformType == "master" {
 		clientPlatformMsgType = proto.ClientPlatformMsgType_SDP_PLATFORM_MASTER_INIT
-	} else {
+	} else if platformType == "satellite" {
 		clientPlatformMsgType = proto.ClientPlatformMsgType_SDP_PLATFORM_SATELLITE_INIT
 	}
 
@@ -177,8 +177,9 @@ func deployPlatform(pnpClient proto.PnPService, platformType string) {
 	serverPlatformResponse := &proto.ServerPlatformResponse{}
 
 	for {
+		fmt.Printf("\nSending SDP Deploy request to PnP server, Request type: %v\n", clientPlatformMsgType)
 		if err = stream.Send(clientMsg); err != nil {
-			log.Fatalf("Failed to send client message, Error: %v", err)
+			log.Fatalf("\nFailed to send client message, Error: %v", err)
 		}
 
 		serverPlatformResponse, err = stream.Recv()
@@ -189,11 +190,13 @@ func deployPlatform(pnpClient proto.PnPService, platformType string) {
 		}
 
 		if err != nil {
-			fmt.Printf("Error while receiving data from server %v\n",  err)
+			fmt.Printf("\nError while receiving data from PnP server %v\n",  err)
 		}
+		fmt.Printf("\nReceived SDP Deploy instructions from PnP server, Instruction type: %v\n", serverPlatformResponse.GetSdpOperType())
+
 		var exeErr error
 		if serverPlatformResponse.CommonServerResponse.GetCmdType() == proto.CmdType_RUN {
-			fmt.Printf("\nCommand string: %v\n", serverPlatformResponse.InstructionPayload.Cmd)
+			fmt.Printf("\nCommand string to execute: %v\n", serverPlatformResponse.InstructionPayload.Cmd)
 			cmdStr := serverPlatformResponse.InstructionPayload.Cmd
 			exeErr = executeServerInstructions(cmdStr)
 		}
@@ -264,17 +267,17 @@ func main() {
 	switch pnpOpType {
 	case "installPackages":
 		{
-			fmt.Println("Initializing package installation...")
+			fmt.Println("Initializing package installation..")
 			installPackages(pnpClient)
 		}
 	case "deploySDPMaster":
 		{
-			fmt.Println("Initializing deployment of SDP Master...")
+			fmt.Println("Requesting deployment of SDP Master from PnP server..")
 			deployPlatform(pnpClient, "master")
 		}
 	case "deploySDPSatellite":
 		{
-			fmt.Println("Initializing deployment of SDP Satellite...")
+			fmt.Println("Requesting deployment of SDP Satellite from PnP server..")
 			deployPlatform(pnpClient, "satellite")
 		}
 	}
