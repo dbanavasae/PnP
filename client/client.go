@@ -6,12 +6,16 @@ import (
 	"runtime"
 	"io"
 	"time"
+	"crypto/tls"
+	"crypto/x509"
+	"io/ioutil"
 	"github.com/micro/go-grpc"
 	"golang.org/x/net/context"
 	"github.com/PnP/common"
 	"github.com/PnP/executor"
 	"github.com/micro/go-micro"
 	"github.com/micro/cli"
+	"github.com/micro/go-micro/transport"
 	proto "github.com/PnP/pnp-proto"
 )
 
@@ -206,6 +210,7 @@ func deployPlatform(pnpClient proto.PnPService, platformType string) {
 func main() {
 	var pnpServer string
 	var pnpOpType string
+	var serverCert string
 
 	service := grpc.NewService(
 		micro.Flags(
@@ -219,18 +224,40 @@ func main() {
 				Usage: "Specifies pnp operation type, supported values are" +
 					"installPackages, deployPlatform",
 			},
+			cli.StringFlag{
+				Name : "server_cert_file",
+				Value: "/certs/server.crt",
+				Usage: "Path of server certificate file",
+			},
 		),
 	)
 	service.Init(
 		micro.Action(func(c *cli.Context) {
 			pnpServer = c.String("pnp_server")
 			pnpOpType = c.String("pnp_op_type")
+			serverCert = c.String("server_cert_file")
 			if pnpOpType == "" {
 				log.Fatalf("PnP operation type not specified, supported values are" +
 					"installPackages, deploySDPMaster, deploySDPSatellite")
 			}
 		}),
 	)
+
+	caCert, err := ioutil.ReadFile(serverCert)
+	if err != nil {
+		log.Fatal(err)
+	}
+	caCertPool := x509.NewCertPool()
+	caCertPool.AppendCertsFromPEM(caCert)
+	tlsConfig := &tls.Config{
+		RootCAs:      caCertPool,
+	}
+	tlsConfig.BuildNameToCertificate()
+	service.Init(
+		micro.Transport(transport.NewTransport(transport.Secure(true))),
+		grpc.WithTLS(tlsConfig),
+	)
+
 	pnpClient := proto.PnPServiceClient(pnpServer, service.Client())
 
 	switch pnpOpType {
