@@ -14,8 +14,6 @@ import (
 	"time"
 )
 
-var input *bufio.Reader
-
 type Subject struct {
 	Organization  []string
 	Country       []string
