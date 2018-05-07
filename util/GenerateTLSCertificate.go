@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/x509"
@@ -13,8 +12,6 @@ import (
 	"os"
 	"time"
 )
-
-var input *bufio.Reader
 
 type Subject struct {
 	Organization  []string
@@ -106,17 +103,7 @@ func GetIPv4ForInterfaceName(ifname string) (ip string) {
 }
 
 func main() {
-	fmt.Printf("Enter interface name: ")
-	input = bufio.NewReader(os.Stdin)
-	var ifName []byte
-	for {
-		data, prefix, _ := input.ReadLine()
-		ifName = append(ifName, data...)
-		if !prefix {
-			break
-		}
-	}
-
+	ifName := os.Args[1]
 	subject := Subject{
 		Organization:	[]string{"RVBD"},
 		Country:		[]string{"IN"},
