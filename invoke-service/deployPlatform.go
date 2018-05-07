@@ -11,7 +11,6 @@ import (
 )
 
 func setPlatformMsgType(serverPlatformOperType proto.SDPOperType, exeErr error) (clientPlatformMsgType proto.ClientPlatformMsgType) {
-
 	switch serverPlatformOperType {
 	case proto.SDPOperType_IS_SDP_PLATFORM_INSTALLED:
 		{

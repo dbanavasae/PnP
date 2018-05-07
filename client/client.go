@@ -7,7 +7,7 @@ import (
 	"crypto/x509"
 	"io/ioutil"
 	"github.com/micro/go-grpc"
-	"github.com/PnP/invoke"
+	"github.com/PnP/invoke-service"
 	"github.com/micro/go-micro"
 	"github.com/micro/cli"
 	"github.com/micro/go-micro/transport"

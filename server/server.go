@@ -3,18 +3,17 @@ package main
 import (
 	"log"
 	"time"
+	"crypto/tls"
 	"github.com/micro/go-grpc"
 	"github.com/micro/go-micro"
 	"github.com/PnP/config"
-	handler "github.com/PnP/handlers"
-	proto "github.com/PnP/pnp-proto"
 	"github.com/micro/cli"
 	"github.com/micro/go-micro/transport"
-	"crypto/tls"
+	handler "github.com/PnP/handlers"
+	proto "github.com/PnP/pnp-proto"
 )
 
 func main() {
-
 	service := grpc.NewService(
 		micro.Name("PnPServer"),
 		micro.Flags(
