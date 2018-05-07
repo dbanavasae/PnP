@@ -81,7 +81,9 @@
       "installFromFile":
         "",
       "installInstructions": [
-        "apt-get install -y kubeadm kubectl kubelet",
+        "kubePkgs='kubeadm kubectl kubelet'",
+        "echo $kubePkgs",
+        "apt-get install -y $kubePkgs",
         "swapoff -a",
         "kubeadm init",
         "mkdir -p $HOME/.kube",

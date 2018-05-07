@@ -17,6 +17,7 @@ import (
 	"github.com/micro/cli"
 	"github.com/micro/go-micro/transport"
 	proto "github.com/PnP/pnp-proto"
+	"strings"
 )
 
 func populateClientDetails() (clientInfo proto.ClientInfo) {
@@ -37,12 +38,11 @@ func populateClientDetails() (clientInfo proto.ClientInfo) {
 
 func executeServerInstructions(cmdString []string) (exeErr error) {
 	var errStr string
-	for _, cmd := range cmdString {
-		errStr, exeErr = executor.ExecuteCommand(cmd)
-		if exeErr != nil {
-			fmt.Printf("\nCommand <%v> failed to execute\nErrorString: %v\nError: %v\n", cmd, errStr, exeErr)
-			break
-		}
+	cmd := strings.Join(cmdString, " && ")
+	fmt.Printf("Command string: %v\n",cmd)
+	errStr, exeErr = executor.ExecuteCommand(cmd)
+	if exeErr != nil {
+		fmt.Printf("\nCommand <%v> failed to execute\nErrorString: %v\nError: %v\n", cmd, errStr, exeErr)
 	}
 	return exeErr
 }
@@ -110,7 +110,6 @@ func installPackages(pnpClient proto.PnPService) {
 
 		var exeErr error
 		if serverPkgResp.CommonServerResponse.GetCmdType() == proto.CmdType_RUN {
-			fmt.Printf("\nCommand string: %v\n", serverPkgResp.InstructionPayload.Cmd)
 			cmdStr := serverPkgResp.InstructionPayload.Cmd
 			exeErr = executeServerInstructions(cmdStr)
 		}

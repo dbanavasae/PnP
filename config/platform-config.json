@@ -1,29 +1,45 @@
 {
   "sdpDeploy" : {
     "checkSDPMasterInstallation" : [
-      "su - sdp -c 'sdp-cli platform status | grep MASTER'"
+      "su - sdp",
+      "sdp-cli platform status | grep MASTER"
     ],
     "checkSDPSatelliteInstallation" : [
-      "su - sdp -c 'sdp-cli platform status | grep SATELLITE'"
+      "su - sdp",
+      "sdp-cli platform status | grep SATELLITE"
     ],
     "downloadSDPArtifact" : [
       "curl -o /tmp/rvbd-sdp-artifact.tar.gz http://10.73.40.62/1.0/nightlybuild/rvbd-sdp-artifact-2018_04_30-B1.0.0-53.tar.gz"
     ],
     "installSDPMasterPlatform" : [
       "tar -zxvf /tmp/rvbd-sdp-artifact.tar.gz --strip-components=1 -C /tmp/",
-      "cd /tmp/sdp-platform-installer && export SDP_USER_PASSWD='sdp' && export SDP_NETWORK_INTERFACE='ens33' && ./install.sh -m"
+      "cd /tmp/sdp-platform-installer",
+      "export SDP_USER_PASSWD='sdp'",
+      "export SDP_NETWORK_INTERFACE='ens33'",
+      "./install.sh -m"
     ],
     "installSDPSatellitePlatform" : [
       "tar -zxvf /tmp/rvbd-sdp-artifact.tar.gz --strip-components=1 -C /tmp/",
-      "cd /tmp/sdp-platform-installer && export SDP_USER_PASSWD='sdp' && export SDP_NETWORK_INTERFACE='ens33' && ./install.sh -s"
+      "cd /tmp/sdp-platform-installer",
+      "export SDP_USER_PASSWD='sdp'",
+      "export SDP_NETWORK_INTERFACE='ens33'",
+      "./install.sh -s"
     ],
     "checkSDPMasterStatus" : [
-      "su - sdp -c 'sdp-cli platform status | grep MASTER'",
-      "su - sdp -c 'sdp-cli platform status | grep Platform is Healthy. All core services are running successfully'"
+      "su - sdp",
+      "sdp-cli platform status >> /tmp/platform_status",
+      "grep 'MASTER' /tmp/platform_status",
+      "grep 'Platform status is: Healthy' /tmp/platform_status"
     ],
     "checkSDPSatelliteStatus" : [
-      "su - sdp -c 'sdp-cli platform status | grep SATELLITE'",
-      "su - sdp -c 'sdp-cli platform status | grep 'Platform is Healthy. All core services are running successfully''"
+      "su - sdp",
+      "sdp-cli platform status >> /tmp/platform_status",
+      "grep 'SATELLITE' /tmp/platform_status",
+      "grep 'Platform status is: Healthy' /tmp/platform_status"
+    ],
+    "platformCleanUp" : [
+      "rm -rf /tmp/sdp-platform-installer",
+      "rm -rf /tmp/platform_status"
     ]
   }
 }
